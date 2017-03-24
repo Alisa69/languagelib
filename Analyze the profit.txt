@@ -1,0 +1,31 @@
+1.Calculate the revenue and gross profit of each film
+2.Sort all films into different categories
+3.Figure out the top-earning category, what kind of movies should be imported more
+
+  
+SELECT x4.sum3,category.* FROM 
+    (SELECT x3.category_id,sum(x3.gross_Profit)AS sum3 
+     FROM 
+        (SELECT x2.gross_Profit, film_category.film_id,film_category.category_id 
+         FROM 
+            (SELECT x1.gross_Profit, film_id 
+             FROM 
+                (SELECT (t5.sum2 - film.replacement_cost)AS gross_Profit, film.* 
+                 FROM 
+                    (SELECT t4.film_id, sum(t4.sum1) AS sum2 
+                     FROM 
+                        (SELECT t3.*,inventory.film_id 
+                         FROM 
+                            (SELECT sum(t2.sum) AS sum1, t2.inventory_id 
+                             FROM 
+                                (SELECT t1.*, rental.* 
+                                 FROM 
+                                 (SELECT rental_id,sum(amount) FROM payment GROUP BY rental_id) AS t1
+                             LEFT JOIN rental ON t1.rental_id = rental.rental_id) AS t2 
+                          GROUP BY t2.inventory_id) AS t3 
+                      LEFT JOIN inventory ON t3.inventory_id = inventory.inventory_id) AS t4 
+                  GROUP BY t4.film_id) AS t5 
+              LEFT JOIN film ON t5.film_id = film.film_id) AS x1 
+           WHERE x1.gross_Profit > 100) AS x2
+        LEFT JOIN film_category ON x2.film_id = film_category.film_id) AS x3 GROUP BY x3.category_id) AS x4
+ LEFT JOIN category ON x4.category_id = category.category_id ORDER BY x4.sum3 DESC;
